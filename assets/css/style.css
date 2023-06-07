@@ -1,0 +1,6 @@
+.message-box:nth-child(even) {
+  background-color: skyblue;
+}
+.message-box:nth-child(odd) {
+  background-color: pink;
+}
