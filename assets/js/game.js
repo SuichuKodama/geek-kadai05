@@ -1,3 +1,29 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved, update }from "firebase/database";
+// TODO: Add SDKs for Firebase products that you want to database
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyB6b2s1HZUZTky5hl4H7r_B8hENBKFcVtM",
+  authDomain: "geek-kadai05.firebaseapp.com",
+  projectId: "geek-kadai05",
+  storageBucket: "geek-kadai05.appspot.com",
+  messagingSenderId: "500603958385",
+  appId: "1:500603958385:web:c53469799ef362772097d0"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getDatabase(app); //RealtimeDBに接続
+const dbRef = ref(db, "position"); //RealtimeDB内の"position"を使う
+
+
+
 //canvas設定
 const canvas = document.getElementById('canvas')
 canvas.width = 640;
@@ -69,12 +95,10 @@ function main() {
   //画像の表示
   context.drawImage( kappa.img, kappa.x, kappa.y );  
 
-  //キーボード押された時、話した時のイベント
+  //キーボード押された時、はなした時のイベント
   addEventListener('keydown', keydownfunc, false);
   addEventListener('keyup', keyupfunc, false);
 
-  console.log(kappa.x)
-  console.log(kappa.y)
 
   //方向キーが押されている場合、かっぱ移動
   if (kappa.move === 0) {
@@ -146,13 +170,28 @@ function keydownfunc( event ) {
 	event.preventDefault();
 }
 
-//キーボードが放（はな）されたときに呼び出される関数
+//キーボードがはなされたときに呼び出される関数
 function keyupfunc( event ) {
 	const key_code = event.keyCode;
 	if( key_code === 37 ) key.left = false;
 	if( key_code === 38 ) key.up = false;
 	if( key_code === 39 ) key.right = false;
 	if( key_code === 40 ) key.down = false;
+
+  const xposition = kappa.x;
+  const yposition = kappa.y;
+
+  const coordinate = {
+    x: xposition,
+    y: yposition
+  }
+
+  // const newPostRef = push(dbRef);
+  set(dbRef, coordinate);
+
+  console.log(dbRef, 'はなした')
+  console.log(kappa.x, 'はなした')
+  console.log(kappa.y, 'はなした')
 }
 
 
