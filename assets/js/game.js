@@ -14,6 +14,10 @@ kappa.x = 0;
 kappa.y = 0;
 kappa.move = 0;
 
+//マップチップのImageオブジェクト
+var mapchip = new Image();
+mapchip.src = '/assets/img/map.png';
+
 //キーボードのオブジェクト
 const key = new Object();
 key.up = false;
@@ -22,12 +26,45 @@ key.right = false;
 key.left = false;
 key.push = '';
 
+//マップの作成
+let map = [
+	[0, 0, 1, 0, 1, 0, 0, 0 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,0],
+	[0, 1, 0, 0, 0, 1, 1, 1 ,0 ,1 ,0 ,1 ,1 ,0 ,1 ,1 ,1 ,0 ,1 ,0],
+	[0, 0, 1, 1, 0, 0, 0, 1 ,0 ,0 ,0 ,1 ,0 ,0 ,0 ,1 ,0 ,0 ,0 ,0],
+	[1, 0, 1, 0, 1, 1, 0, 0 ,0 ,1 ,1 ,1 ,1 ,1 ,0 ,0 ,1 ,0 ,1 ,0],
+	[0, 0, 0, 0, 0, 1, 1, 1 ,0 ,1 ,0 ,0 ,0 ,0 ,1 ,1 ,0 ,1 ,1 ,0],
+	[0, 1, 1, 1, 0, 0, 0, 0 ,0 ,1 ,0 ,1 ,1 ,1 ,0 ,1 ,0 ,0 ,0 ,0],
+	[0, 1, 1, 1, 0, 1, 1, 1 ,1 ,1 ,0 ,1 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,0],
+	[0, 0, 0, 1, 0, 0, 0, 0 ,1 ,0 ,0 ,1 ,0 ,1 ,1 ,0 ,0 ,0 ,1 ,0],
+	[1, 1, 0, 1, 1, 1, 1, 1 ,1 ,0 ,1 ,1 ,0 ,0 ,1 ,1 ,1 ,0 ,1 ,1],
+	[1, 0, 0, 0, 0, 0, 1, 1 ,0 ,0 ,0 ,0 ,1 ,0 ,1 ,1 ,0 ,0 ,1 ,0],
+	[1, 0, 1, 1, 1, 0, 0, 0 ,1 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,0 ,0],
+	[1, 0, 1, 0, 1, 1, 1, 0 ,1 ,0 ,1 ,1 ,0 ,1 ,1 ,0 ,0 ,0 ,0 ,1],
+	[0, 0, 1, 0, 0, 1, 0, 0 ,1 ,0 ,0 ,1 ,0 ,1 ,0 ,1 ,1 ,1 ,0 ,0],
+	[0, 1, 1, 1, 0, 1, 0, 1 ,0 ,0 ,1 ,1 ,0 ,1 ,0 ,1 ,1 ,0 ,1 ,0],
+	[0, 0, 0, 1, 0, 1, 0, 0 ,1 ,0 ,1 ,1 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,0],
+	[1, 1, 0, 1, 0, 1, 0, 1 ,1 ,0 ,0 ,1 ,0 ,1 ,1 ,0 ,1 ,1 ,1 ,0],
+	[0, 0, 0, 1, 0, 1, 1, 1 ,1 ,1 ,0 ,1 ,0 ,1 ,1 ,0 ,0 ,0 ,1 ,0],
+	[0, 1, 1, 1, 0, 1, 0, 0 ,0 ,0 ,0 ,1 ,0 ,0 ,0 ,1 ,1 ,0 ,1 ,1],
+	[0, 1, 0, 0, 0, 1, 0, 1 ,1 ,1 ,0 ,0 ,1 ,1 ,0 ,1 ,0 ,0 ,0 ,0],
+	[0, 0, 0, 1, 0, 0, 0, 1 ,1 ,1 ,1 ,0 ,0 ,0 ,1 ,1 ,1 ,1 ,1 ,0]
+];
+
 //メインループ
 function main() {
+
   //塗（ぬ）りつぶす色を指定（してい）
 	context.fillStyle = "rgb( 0, 0, 0 )";
 	//塗（ぬ）りつぶす
 	context.fillRect(0, 0, 640, 640);
+
+  //マップチップを表示する
+  for (let y = 0; y < map.length; y++) {
+		for (let x = 0; x < map[y].length; x++) {
+			if ( map[y][x] === 0 ) context.drawImage( mapchip, 0, 0, 32, 32, 32*x, 32*y, 32, 32 );
+			if ( map[y][x] === 1 ) context.drawImage( mapchip, 32, 0, 32, 32, 32*x, 32*y, 32, 32 );
+		}
+	}
 
   //画像の表示
   context.drawImage( kappa.img, kappa.x, kappa.y );  
@@ -36,23 +73,50 @@ function main() {
   addEventListener('keydown', keydownfunc, false);
   addEventListener('keyup', keyupfunc, false);
 
+  console.log(kappa.x)
+  console.log(kappa.y)
+
   //方向キーが押されている場合、かっぱ移動
   if (kappa.move === 0) {
     if (key.left === true) {
-      kappa.move = 32;
-      key.push = 'left';
+      let x =  kappa.x / 32;
+      let y =  kappa.y / 32;
+      x--;
+      if ( map[y][x] === 0 ) {
+        kappa.move = 32;
+        key.push = 'left';
+      }
     }
     if (key.up === true) {
-      kappa.move = 32;
-      key.push = 'up';
+      let x =  kappa.x / 32;
+      let y =  kappa.y / 32;
+      if ( y > 0 ) {
+        y--;
+        if ( map[y][x] === 0 ) {
+          kappa.move = 32;
+          key.push = 'up';
+        }
+      }
     }
     if (key.right === true) {
-      kappa.move = 32;
-      key.push = 'right';
+      let x =  kappa.x / 32;
+      let y =  kappa.y / 32;
+      x++;
+      if ( map[y][x] === 0 ) {
+        kappa.move = 32;
+        key.push = 'right';
+      }
     }
     if (key.down === true) {
-      kappa.move = 32;
-      key.push = 'down';
+      let x =  kappa.x / 32;
+      let y =  kappa.y / 32;
+      if ( y < 19 ) {
+        y++;
+        if ( map[y][x] === 0 ) {
+          kappa.move = 32;
+          key.push = 'down';
+        }
+      }
     }
   }
   
@@ -90,4 +154,9 @@ function keyupfunc( event ) {
 	if( key_code === 39 ) key.right = false;
 	if( key_code === 40 ) key.down = false;
 }
+
+
+
+
+
 
