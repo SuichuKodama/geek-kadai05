@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved, update }from "firebase/database";
+import { getDatabase, ref, onValue, get, push, set, onChildAdded, remove, onChildRemoved, update }from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to database
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -20,9 +20,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getDatabase(app); //RealtimeDBに接続
-const dbRef = ref(db, "position"); //RealtimeDB内の"position"を使う
-
-
+const kappaKey = Math.round(Math.random() * 65535);
+const positionsRef = ref(db, 'positions');
+const dbRef = ref(db, `positions/${kappaKey}`); //RealtimeDB内の"position"を使う
 
 //canvas設定
 const canvas = document.getElementById('canvas')
@@ -31,6 +31,8 @@ canvas.height = 640;
 
 //コンテキストを取得
 const context = canvas.getContext('2d')
+
+const positions = await get(positionsRef);
 
 //キャラ画像
 const kappa = new Object();
@@ -76,6 +78,8 @@ let map = [
 	[0, 0, 0, 1, 0, 0, 0, 1 ,1 ,1 ,1 ,0 ,0 ,0 ,1 ,1 ,1 ,1 ,1 ,0]
 ];
 
+let mobPositions = [];
+
 //メインループ
 function main() {
 
@@ -94,6 +98,10 @@ function main() {
 
   //画像の表示
   context.drawImage( kappa.img, kappa.x, kappa.y );  
+
+  for (const mob of mobPositions) {
+    context.drawImage( kappa.img, mob.x, mob.y);
+  }
 
   //キーボード押された時、はなした時のイベント
   addEventListener('keydown', keydownfunc, false);
@@ -158,7 +166,8 @@ function main() {
 }
 
 //画像の表示
-addEventListener('load', main(), false);
+// addEventListener('load', main(), false);
+main();
 
 //キーボードが押されたときに呼び出される関数（かんすう）
 function keydownfunc( event ) {
@@ -193,8 +202,22 @@ function keyupfunc( event ) {
   console.log(kappa.y, 'はなした')
 }
 
+onValue(positionsRef, snapshot => {
+  const val = snapshot.val();
+  const nMobs = [];
 
+  for (const key in val) {
+    if (key != kappaKey) {
+      nMobs.push(val[key])
+    }
+  }
 
+  mobPositions = nMobs;
+})
 
-
-
+window.addEventListener('beforeunload', function(ev) {
+  ev.preventDefault();
+  remove(dbRef).then(() => {
+    ev.returnValue = '';
+  });
+});
