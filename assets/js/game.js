@@ -189,7 +189,6 @@ function keyupfunc( event ) {
   // const newPostRef = push(dbRef);
   set(dbRef, coordinate);
 
-  console.log(dbRef, 'はなした')
   console.log(kappa.x, 'はなした')
   console.log(kappa.y, 'はなした')
 }
